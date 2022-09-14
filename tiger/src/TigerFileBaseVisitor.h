@@ -10,13 +10,14 @@
 #include "TigerVisitor.h"
 
 
-typedef std::map<std::string, std::string> TokenMap;
-
 class TigerFileBaseVisitor : public TigerVisitor {
 public:
+    typedef std::map<std::string, std::string> TokenMap;
+
     const TokenMap& getTokens() const {
         return tokens;
     }
+
 private:
     TokenMap tokens;
 

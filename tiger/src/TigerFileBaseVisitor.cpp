@@ -1,16 +1,22 @@
 #include <string>
 
+#include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
+
+std::pair<std::string, std::string> token_pair(const std::string& token_type, const std::string& token_value) {
+    return std::pair(token_type, token_value);
+}
 
 std::any TigerFileBaseVisitor::visitTiger_program(TigerParser::Tiger_programContext *context) {
     const std::string id = context->ID()->getText();
-    std::cout << id << std::endl;
-    tokens.insert(std::pair<std::string, std::string>(std::string("program"), id));
+    tokens.insert(token_pair("PROGRAM", id));
+    context->decl_segment()->accept(this);
+    context->funct_list()->accept(this);
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitDecl_segment(TigerParser::Decl_segmentContext *context) {
-
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitType_decl_list(TigerParser::Type_decl_listContext *context) {
@@ -22,7 +28,13 @@ std::any TigerFileBaseVisitor::visitVar_decl_list(TigerParser::Var_decl_listCont
 }
 
 std::any TigerFileBaseVisitor::visitFunct_list(TigerParser::Funct_listContext *context) {
-
+    if (context->funct()) {
+        context->funct()->accept(this);
+    }
+    if (context->funct_list()) {
+        context->funct_list()->accept(this);
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitType_decl(TigerParser::Type_declContext *context) {
@@ -54,7 +66,9 @@ std::any TigerFileBaseVisitor::visitOptional_init(TigerParser::Optional_initCont
 }
 
 std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
-
+    const std::string id = context->ID()->getText();
+    tokens.insert(token_pair("FUNCTION", id));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitParam_list(TigerParser::Param_listContext *context) {
