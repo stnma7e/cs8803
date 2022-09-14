@@ -13,7 +13,8 @@ INCLUDE = \
 	-I$(RUNTIME) \
 	-I$(SRC) \
 	-I$(ANTLR_RUNTIME)
-CXXFLAGS = -std=c++17 -g -Wno-attributes
+CXXFLAGS = -std=c++17 -g -Wno-attributes -fsanitize=address
+LDFLAGS = -fsanitize=address
 LIBANTLR = $(PWD)/vendor/antlr4/build/runtime/libantlr4-runtime.a
 GENERATED_SOURCES = \
 	$(RUNTIME)/TigerParser.cpp \
@@ -43,16 +44,19 @@ GENERATED_OBJECTS = \
 	$(BUILD)/TigerBaseVisitor.o \
 	$(BUILD)/TigerBaseListener.o \
 	$(BUILD)/TigerListener.o
-HEADERS =
+HEADERS = \
+	$(SRC)/TigerFileBaseVisitor.h
 SOURCES = \
-	$(SRC)/tigerc.cpp
+	$(SRC)/tigerc.cpp \
+	$(SRC)/TigerFileBaseVisitor.cpp
 OBJECTS = \
-	$(BUILD)/tigerc.o
+	$(BUILD)/tigerc.o \
+	$(BUILD)/TigerFileBaseVisitor.o
 
 all : dirs $(BIN)/tigerc
 $(BIN)/tigerc: $(OBJECTS) $(GENERATED_OBJECTS)
-	g++ -o $@ $(OBJECTS) $(GENERATED_OBJECTS) $(LIBANTLR)
-$(OBJECTS): $(BUILD)/%.o: $(SRC)/%.cpp $(GENERATED_HEADERS) $(HEADERS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(GENERATED_OBJECTS) $(LIBANTLR)
+$(OBJECTS): $(BUILD)/%.o: $(SRC)/%.cpp $(GENERATED_HEADERS) $(HEADERS) $(SOURCES)
 	$(CXX) -c $(CXXFLAGS) $(INCLUDE) $< -o $@
 $(GENERATED_FILES): Tiger.g4
 	java -Xmx500M -cp "/home/delmerico/cs8803/antlr-4.11.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool -o $(RUNTIME) -Dlanguage=Cpp -visitor $<
