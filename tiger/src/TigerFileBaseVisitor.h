@@ -4,7 +4,7 @@
 
 #include <any>
 #include <string>
-#include <map>
+#include <vector>
 
 #include "TigerParser.h"
 #include "TigerVisitor.h"
@@ -12,7 +12,7 @@
 
 class TigerFileBaseVisitor : public TigerVisitor {
 public:
-    typedef std::map<std::string, std::string> TokenMap;
+    typedef std::vector<std::pair<std::string, std::string>> TokenMap;
 
     const TokenMap& getTokens() const {
         return tokens;
