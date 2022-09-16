@@ -3,9 +3,11 @@ let
 
 type myint := int;
 
+type myarray := array [ 10 ] of int;
+
 begin
 
-function main()
+function main(): int
 begin
 return 0;
 end

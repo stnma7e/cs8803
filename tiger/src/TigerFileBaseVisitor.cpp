@@ -73,10 +73,32 @@ std::any TigerFileBaseVisitor::visitType_decl(TigerParser::Type_declContext *con
 }
 
 std::any TigerFileBaseVisitor::visitType(TigerParser::TypeContext *context) {
+    //TODO how do I select only one of these?
+    if (context->base_type()) {
+        context->base_type()->accept(this);
+    }
+    if (context->ARRAY()) {
+        //TODO fix this syntax
+        tokens.push_back(token(context->ARRAY()));
+        tokens.push_back(token_pair("OPENBRACK", context->OPENBRACK()));
+        tokens.push_back(token_pair("INTLIT", context->INTLIT()));
+        tokens.push_back(token_pair("CLOSEBRACK", context->CLOSEBRACK()));
+        tokens.push_back(token(context->OF()));
+        context->base_type()->accept(this);
+    }
+    if (context->ID()) {
+        tokens.push_back(token_pair("ID", context->ID()));
+    }
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitBase_type(TigerParser::Base_typeContext *context) {
+    if (context->INT()) {
+        tokens.push_back(token(context->INT()));
+    }
+    if (context->FLOAT()) {
+        tokens.push_back(token(context->FLOAT()));
+    }
     return nullptr;
 }
 
@@ -118,6 +140,10 @@ std::any TigerFileBaseVisitor::visitParam_list_tail(TigerParser::Param_list_tail
 }
 
 std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *context) {
+    if (context->COLON()) {
+        tokens.push_back(token_pair("COLON", context->COLON()));
+        context->type()->accept(this);
+    }
     return nullptr;
 }
 
