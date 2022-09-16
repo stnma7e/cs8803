@@ -1,9 +1,14 @@
 program main
 let
 
-type myint := int;
+type myint = int;
 
-type myarray := array [ 10 ] of int;
+type myarray = array [ 10 ] of int;
+
+var x : int;
+var x : int := 2;
+var x, y, z : int;
+var x, y, z : int := 3;
 
 begin
 

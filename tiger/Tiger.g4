@@ -103,7 +103,7 @@ WHILE : 'while' ;
 DO : 'do' ;
 ENDDO : 'enddo' ;
 FOR : 'for' ;
-ASSIGN : 'assign' ;
+ASSIGN : ':=' ;
 TO : 'to' ;
 BREAK : 'break' ;
 RETURN : 'return' ;
@@ -111,7 +111,7 @@ RETURN : 'return' ;
 INTLIT : [0-9]+ ;
 FLOATLIT : [0-9]+'.'[0-9]* ;
 
-TASSIGN : ':=' ;
+TASSIGN : '=' ;
 COLON : ':' ;
 SEMICOLON : ';' ;
 COMMA : ',' ;
@@ -126,4 +126,4 @@ EQUAL : '=' ;
 NEQUAL : '!=' ;
 WS  :   [ \t\r\n]+ -> skip ;
 
-ID : [_a-zA-Z]+[_0-9a-zA-z]* ;
+ID : [_a-zA-Z]+[_0-9a-zA-Z]* ;

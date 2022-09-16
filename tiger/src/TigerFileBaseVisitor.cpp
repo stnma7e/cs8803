@@ -103,19 +103,44 @@ std::any TigerFileBaseVisitor::visitBase_type(TigerParser::Base_typeContext *con
 }
 
 std::any TigerFileBaseVisitor::visitVar_decl(TigerParser::Var_declContext *context) {
+    context->storage_class()->accept(this);
+    context->id_list()->accept(this);
+    tokens.push_back(token_pair("COLON", context->COLON()));
+    context->type()->accept(this);
+    context->optional_init()->accept(this);
+    tokens.push_back(token_pair("SEMICOLON", context->SEMICOLON()));
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitStorage_class(TigerParser::Storage_classContext *context) {
-
+    if (context->VAR()) {
+        tokens.push_back(token(context->VAR()));
+    }
+    if (context->STATIC()) {
+        tokens.push_back(token(context->STATIC()));
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitId_list(TigerParser::Id_listContext *context) {
-
+    if (context->ID()) {
+        tokens.push_back(token_pair("ID", context->ID()));
+    }
+    if (context->COMMA()) {
+        tokens.push_back(token_pair("COMMA", context->COMMA()));
+    }
+    if (context->id_list()) {
+        context->id_list()->accept(this);
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitOptional_init(TigerParser::Optional_initContext *context) {
-
+    if (context->ASSIGN()) {
+        tokens.push_back(token_pair("ASSIGN", context->ASSIGN()));
+        context->const_()->accept(this);
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
@@ -172,7 +197,13 @@ std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
-
+    if (context->INTLIT()) {
+        tokens.push_back(token_pair("INTLIT", context->INTLIT()));
+    }
+    if (context->FLOATLIT()) {
+        tokens.push_back(token_pair("FLOATLIT", context->FLOATLIT()));
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitBinary_operator(TigerParser::Binary_operatorContext *context) {
