@@ -157,11 +157,24 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitParam_list(TigerParser::Param_listContext *context) {
+    if (context->param()) {
+        context->param()->accept(this);
+    }
+    if (context->param_list_tail()) {
+        context->param_list_tail()->accept(this);
+    }
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitParam_list_tail(TigerParser::Param_list_tailContext *context) {
-
+    if (context->COMMA()) {
+        tokens.push_back(token_pair("COMMA", context->COMMA()));
+        context->param()->accept(this);
+        if (context->param_list_tail()) {
+            context->param_list_tail()->accept(this);
+        }
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *context) {
@@ -173,7 +186,10 @@ std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *conte
 }
 
 std::any TigerFileBaseVisitor::visitParam(TigerParser::ParamContext *context) {
-
+    tokens.push_back(token_pair("ID", context->ID()));
+    tokens.push_back(token_pair("COLON", context->COLON()));
+    context->type()->accept(this);
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitStat_seq(TigerParser::Stat_seqContext *context) {
