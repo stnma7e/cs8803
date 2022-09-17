@@ -39,7 +39,15 @@ private:
     virtual std::any visitRet_type(TigerParser::Ret_typeContext *context);
     virtual std::any visitParam(TigerParser::ParamContext *context);
     virtual std::any visitStat_seq(TigerParser::Stat_seqContext *context);
-    virtual std::any visitStat(TigerParser::StatContext *context);
+    virtual std::any visitValueAssign(TigerParser::ValueAssignContext *context);
+    virtual std::any visitIfThen(TigerParser::IfThenContext *context);
+    virtual std::any visitIfThenElse(TigerParser::IfThenElseContext *context);
+    virtual std::any visitWhile(TigerParser::WhileContext *context);
+    virtual std::any visitFor(TigerParser::ForContext *context);
+    virtual std::any visitOptAssign(TigerParser::OptAssignContext *context);
+    virtual std::any visitBreak(TigerParser::BreakContext *context);
+    virtual std::any visitReturn(TigerParser::ReturnContext *context);
+    virtual std::any visitLet(TigerParser::LetContext *context);
     virtual std::any visitOptreturn(TigerParser::OptreturnContext *context);
     virtual std::any visitOptprefix(TigerParser::OptprefixContext *context);
     virtual std::any visitExpr(TigerParser::ExprContext *context);

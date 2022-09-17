@@ -49,15 +49,16 @@ param : ID COLON type ;
 stat_seq : stat
          | stat stat_seq ;
 
-stat : value ASSIGN expr SEMICOLON
-     | IF expr THEN stat_seq ENDIF SEMICOLON
-     | IF expr THEN stat_seq ELSE stat_seq ENDIF SEMICOLON
-     | WHILE expr DO stat_seq ENDDO SEMICOLON
-     | FOR ID ASSIGN expr TO expr DO stat_seq ENDDO SEMICOLON
-     | optprefix ID OPENPAREN expr_list CLOSEPAREN SEMICOLON
-     | BREAK SEMICOLON
-     | RETURN optreturn SEMICOLON
-     | LET decl_segment BEGIN stat_seq END ;
+stat : value ASSIGN expr SEMICOLON                              # ValueAssign
+     | IF expr THEN stat_seq ENDIF SEMICOLON                    # IfThen
+     | IF expr THEN stat_seq ELSE stat_seq ENDIF SEMICOLON      # IfThenElse
+     | WHILE expr DO stat_seq ENDDO SEMICOLON                   # While
+     | FOR ID ASSIGN expr TO expr DO stat_seq ENDDO SEMICOLON   # For
+     | optprefix ID OPENPAREN expr_list CLOSEPAREN SEMICOLON    # OptAssign
+     | BREAK SEMICOLON                                          # Break
+     | RETURN optreturn SEMICOLON                               # Return
+     | LET decl_segment BEGIN stat_seq END                      # Let
+     ;
 
 optreturn : expr
           | ;

@@ -12,6 +12,11 @@ var x, y, z : int := 3;
 
 begin
 
+function main(): int
+begin
+return 0;
+end
+
 function main(x: int): int
 begin
 return 0;
@@ -19,10 +24,15 @@ end
 
 function main(x: int, y: int, z: myint): int
 begin
-return 0;
+return ( 0 );
 end
 
-function main(): int
+function main(x: int, y: int, z: myint): int
+begin
+return;
+end
+
+function main(x: int, y: int, z: myint): int
 begin
 return 0;
 end
