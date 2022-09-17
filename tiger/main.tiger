@@ -19,7 +19,7 @@ end
 
 function main(x: int): int
 begin
-return 0;
+return 0 + 1;
 end
 
 function main(x: int, y: int, z: myint): int

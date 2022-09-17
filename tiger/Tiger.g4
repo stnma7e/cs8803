@@ -72,9 +72,10 @@ expr : const
 
 const : INTLIT | FLOATLIT ;
 
-binary_operator : PLUS | MINUS
-                | EQUAL | NEQUAL ;
-
+binary_operator : PLUS  | MINUS  | MULT  | DIV | POW
+                | EQUAL | NEQUAL
+                | LESS  | LESSEQ | GREAT | GREATEQ
+                | AND   | OR;
 expr_list : expr expr_list_tail
           | ;
 expr_list_tail : COMMA expr expr_list_tail
@@ -123,8 +124,17 @@ CLOSEBRACK : ']' ;
 
 PLUS : '+' ;
 MINUS : '-' ;
-EQUAL : '=' ;
+MULT : '*' ;
+DIV : '/' ;
+POW : '**' ;
+EQUAL : '==' ;
 NEQUAL : '!=' ;
+LESS : '<' ;
+LESSEQ : '<=' ;
+GREAT : '>' ;
+GREATEQ : '>=' ;
+AND : '&' ;
+OR : '|' ;
 WS  :   [ \t\r\n]+ -> skip ;
 
 ID : [_a-zA-Z]+[_0-9a-zA-Z]* ;

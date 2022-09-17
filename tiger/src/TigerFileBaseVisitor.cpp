@@ -281,7 +281,46 @@ std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitBinary_operator(TigerParser::Binary_operatorContext *context) {
-
+    if (context->PLUS()) {
+        tokens.push_back(token("PLUS", context->PLUS()));
+    }
+    if (context->MINUS()) {
+        tokens.push_back(token("MINUS", context->MINUS()));
+    }
+    if (context->MULT()) {
+        tokens.push_back(token("MULT", context->MULT()));
+    }
+    if (context->DIV()) {
+        tokens.push_back(token("DIV", context->DIV()));
+    }
+    if (context->POW()) {
+        tokens.push_back(token("POW", context->POW()));
+    }
+    if (context->EQUAL()) {
+        tokens.push_back(token("EQUAL", context->EQUAL()));
+    }
+    if (context->NEQUAL()) {
+        tokens.push_back(token("NEQUAL", context->NEQUAL()));
+    }
+    if (context->LESS()) {
+        tokens.push_back(token("LESS", context->LESS()));
+    }
+    if (context->LESSEQ()) {
+        tokens.push_back(token("LESSEQ", context->LESSEQ()));
+    }
+    if (context->GREAT()) {
+        tokens.push_back(token("GREAT", context->GREAT()));
+    }
+    if (context->GREATEQ()) {
+        tokens.push_back(token("GREATEQ", context->GREATEQ()));
+    }
+    if (context->OR()) {
+        tokens.push_back(token("OR", context->OR()));
+    }
+    if (context->AND()) {
+        tokens.push_back(token("AND", context->AND()));
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitExpr_list(TigerParser::Expr_listContext *context) {
