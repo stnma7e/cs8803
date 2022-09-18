@@ -259,9 +259,9 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
             context->ret_type()->accept(this)
         )),
         std::make_shared<TokenInfo>(context->BEGIN()),
-//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-//            context->stat_seq()->accept(this)
-//        )),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )),
         std::make_shared<TokenInfo>(context->END()),
     });
 }
@@ -324,11 +324,21 @@ std::any TigerFileBaseVisitor::visitParam(TigerParser::ParamContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitStat_seq(TigerParser::Stat_seqContext *context) {
+    TokenInfo::Children children;
+
     context->stat()->accept(this);
+    children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+        context->stat()->accept(this)
+    )));
+
     if (context->stat_seq()) {
         context->stat_seq()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )));
     }
-    return nullptr;
+
+    return TokenInfo("stat_seq", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitValueAssign(TigerParser::ValueAssignContext *context) {
@@ -336,7 +346,16 @@ std::any TigerFileBaseVisitor::visitValueAssign(TigerParser::ValueAssignContext 
     tokens.push_back(token("ASSIGN", context->ASSIGN()));
     context->expr()->accept(this);
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->value()->accept(this)
+        )),
+        std::make_shared<TokenInfo>("ASSIGN", context->ASSIGN()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitIfThen(TigerParser::IfThenContext *context) {
@@ -346,7 +365,18 @@ std::any TigerFileBaseVisitor::visitIfThen(TigerParser::IfThenContext *context) 
     context->stat_seq()->accept(this);
     tokens.push_back(token("ENDIF", context->ENDIF()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->IF()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->THEN()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->ENDIF()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitIfThenElse(TigerParser::IfThenElseContext *context) {
@@ -358,7 +388,22 @@ std::any TigerFileBaseVisitor::visitIfThenElse(TigerParser::IfThenElseContext *c
     context->stat_seq(1)->accept(this);
     tokens.push_back(token("ENDIF", context->ENDIF()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->IF()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->THEN()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq(0)->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->ELSE()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq(1)->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->ENDIF()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitWhile(TigerParser::WhileContext *context) {
@@ -368,7 +413,18 @@ std::any TigerFileBaseVisitor::visitWhile(TigerParser::WhileContext *context) {
     context->stat_seq()->accept(this);
     tokens.push_back(token("ENDDO", context->ENDDO()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->WHILE()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->DO()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->ENDDO()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitFor(TigerParser::ForContext *context) {
@@ -382,7 +438,24 @@ std::any TigerFileBaseVisitor::visitFor(TigerParser::ForContext *context) {
     context->stat_seq()->accept(this);
     tokens.push_back(token("ENDDO", context->ENDDO()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->FOR()),
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+        std::make_shared<TokenInfo>("ASSIGN: " + context->ASSIGN()->getText()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr(0)->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->TO()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr(1)->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->DO()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->ENDDO()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitFunctCall(TigerParser::FunctCallContext *context) {
@@ -392,20 +465,37 @@ std::any TigerFileBaseVisitor::visitFunctCall(TigerParser::FunctCallContext *con
     context->expr_list()->accept(this);
     tokens.push_back(token("CLOSEPAREN", context->CLOSEPAREN()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+        std::make_shared<TokenInfo>("OPENPAREN: " + context->OPENPAREN()->getText()),
+        //std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+        //    context->expr_list()->accept(this)
+        //)),
+        std::make_shared<TokenInfo>("CLOSEPAREN: " + context->CLOSEPAREN()->getText()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitBreak(TigerParser::BreakContext *context) {
     tokens.push_back(token("BREAK", context->BREAK()));
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->BREAK()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitReturn(TigerParser::ReturnContext *context) {
     tokens.push_back(token(context->RETURN()));
     context->optreturn()->accept(this);
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->RETURN()),
+//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+//            context->optreturn()->accept(this)
+//        )),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitLet(TigerParser::LetContext *context) {
@@ -414,7 +504,17 @@ std::any TigerFileBaseVisitor::visitLet(TigerParser::LetContext *context) {
     tokens.push_back(token("BEGIN", context->BEGIN()));
     context->stat_seq()->accept(this);
     tokens.push_back(token("END", context->END()));
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->LET()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->decl_segment()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->BEGIN()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->stat_seq()->accept(this)
+        )),
+        std::make_shared<TokenInfo>(context->END())
+    });
 }
 
 std::any TigerFileBaseVisitor::visitOptreturn(TigerParser::OptreturnContext *context) {
@@ -433,8 +533,13 @@ std::any TigerFileBaseVisitor::visitOptprefix(TigerParser::OptprefixContext *con
 }
 
 std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
+    TokenInfo::Children children;
+
     if (context->const_()) {
         context->const_()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->const_()->accept(this)
+        )));
     }
     if (context->value()) {
         context->value()->accept(this);
@@ -449,7 +554,8 @@ std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
         context->expr(0)->accept(this);
         tokens.push_back(token("CLOSEPAREN", context->CLOSEPAREN()));
     }
-    return nullptr;
+
+    return TokenInfo("expr", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
@@ -527,7 +633,12 @@ std::any TigerFileBaseVisitor::visitExpr_list_tail(TigerParser::Expr_list_tailCo
 std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {
     tokens.push_back(token("ID", context->ID()));
     context->value_tail()->accept(this);
-    return nullptr;
+    return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+//            context->value_tail()->accept(this)
+//        )),
+    });
 }
 
 std::any TigerFileBaseVisitor::visitValue_tail(TigerParser::Value_tailContext *context) {
