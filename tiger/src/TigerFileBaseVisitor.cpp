@@ -27,13 +27,13 @@ std::any TigerFileBaseVisitor::visitTiger_program(TigerParser::Tiger_programCont
     return TokenInfo(context->PROGRAM(), TokenInfo::Children{
         std::make_shared<TokenInfo>("ID", context->ID()),
         std::make_shared<TokenInfo>(context->LET()),
-        std::make_shared<TokenInfo>(
-            std::any_cast<TokenInfo>(context->decl_segment()->accept(this))
-        ),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->decl_segment()->accept(this)
+        )),
         std::make_shared<TokenInfo>(context->BEGIN()),
-        std::make_shared<TokenInfo>(
-            std::any_cast<TokenInfo>(context->funct_list()->accept(this))
-        ),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->funct_list()->accept(this)
+        )),
         std::make_shared<TokenInfo>(context->END()),
     });
 }
@@ -130,28 +130,38 @@ std::any TigerFileBaseVisitor::visitType(TigerParser::TypeContext *context) {
     TokenInfo::Children children;
 
     //TODO how do I select only one of these?
-    if (context->base_type()) {
-        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-            context->base_type()->accept(this)
-        )));
-    }
     if (context->ARRAY()) {
-        //TODO fix this syntax
+        //TODO fix this syntax with spaces around bracks
         tokens.push_back(token(context->ARRAY()));
         tokens.push_back(token("OPENBRACK", context->OPENBRACK()));
         tokens.push_back(token("INTLIT", context->INTLIT()));
         tokens.push_back(token("CLOSEBRACK", context->CLOSEBRACK()));
         tokens.push_back(token(context->OF()));
         context->base_type()->accept(this);
+
+        children.push_back(std::make_shared<TokenInfo>(context->ARRAY()));
+        children.push_back(std::make_shared<TokenInfo>("OPENBRACK", context->OPENBRACK()));
+        children.push_back(std::make_shared<TokenInfo>("INTLIT: " + context->INTLIT()->getText()));
+        children.push_back(std::make_shared<TokenInfo>("CLOSEBRACK", context->CLOSEBRACK()));
+        children.push_back(std::make_shared<TokenInfo>(context->OF()));
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->base_type()->accept(this)
+        )));
+    } else if (context->base_type()) {
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->base_type()->accept(this)
+        )));
     }
     if (context->ID()) {
         tokens.push_back(token("ID", context->ID()));
+        children.push_back(std::make_shared<TokenInfo>("ID: " + context->ID()->getText()));
     }
 
     return TokenInfo("type", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitBase_type(TigerParser::Base_typeContext *context) {
+    //TODO make this a split type
     if (context->INT()) {
         tokens.push_back(token(context->INT()));
         return TokenInfo("base_type: " + context->INT()->getText());
