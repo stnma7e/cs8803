@@ -9,10 +9,12 @@ RUNTIME = runtime
 BUILD = build
 SRC = src
 ANTLR_RUNTIME = $(PWD)/vendor/antlr4/runtime/src
+ARGPARSE_INC = $(PWD)/vendor/argparse/include
 INCLUDE = \
 	-I$(RUNTIME) \
 	-I$(SRC) \
-	-I$(ANTLR_RUNTIME)
+	-I$(ANTLR_RUNTIME) \
+	-I$(ARGPARSE_INC)
 CXXFLAGS = -std=c++17 -g -Wno-attributes -fsanitize=address
 LDFLAGS = -fsanitize=address
 LIBANTLR = $(PWD)/vendor/antlr4/build/runtime/libantlr4-runtime.a

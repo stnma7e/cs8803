@@ -2,47 +2,70 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 
+#include "argparse/argparse.hpp"
 #include "antlr4-runtime.h"
 #include "TigerLexer.h"
 #include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
 #include "TokenInfo.h"
 
-using std::cout;
-using std::endl;
+namespace fs = std::filesystem;
 
-void print_usage(const char *program_name) {
-    printf("USAGE: %s -i <input file>\n", program_name);
-}
 
-int main(int argc, const char *argv[]) {
-    if (argc != 2) {
-        print_usage(argv[0]);
-        return 1;
+int main(int argc, char** argv) {
+    argparse::ArgumentParser program("tigerc");
+    program.add_argument("-i")
+        .required()
+        .help("input file");
+    program.add_argument("-l")
+        .help("write stream of tokens to file")
+        .default_value(false)
+        .implicit_value(true);
+    program.add_argument("-p")
+        .help("write graph of parse tree to file")
+        .default_value(false)
+        .implicit_value(true);
+    try {
+        program.parse_args(argc, argv);
+    }
+    catch (const std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        std::exit(1);
     }
 
-    const auto input_filename = argv[1];
-    cout << "parsing \"" << input_filename << "\"" << endl;
+    const auto input_filename_str = program.get<std::string>("-i");
+    const auto input_filename = fs::path(input_filename_str);
+    std::cout << "parsing " << input_filename << std::endl;
 
     std::ifstream stream;
     stream.open(input_filename);
     antlr4::ANTLRInputStream input(stream);
     TigerLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
-    for (int i = 0; i < tokens.size(); i++) {
-        cout << tokens.get(i) << endl;
+
+    if (program.get<bool>("-l")) {
+        auto token_filename = input_filename;
+        token_filename.replace_extension(".tokens");
+        std::ofstream tokenFile(token_filename);
+        tokenFile << tokens.getText() << std::endl;
+        tokenFile.close();
     }
-    cout << tokens.getText() << endl;
+
     TigerParser parser(&tokens);
     antlr4::tree::ParseTree *tree = parser.tiger_program();
 
-    TigerFileBaseVisitor vis;
-    const TokenInfo program = std::any_cast<TokenInfo>(vis.visit(tree));
-
-    std::ofstream dotfile("graph.dot");
-    dotfile << program.graphviz();
-    dotfile.close();
+    if (program.get<bool>("-p")) {
+        TigerFileBaseVisitor vis;
+        const TokenInfo parseTree = std::any_cast<TokenInfo>(vis.visit(tree));
+        auto dot_filename = input_filename;
+        dot_filename.replace_extension(".dot");
+        std::ofstream dotfile(dot_filename);
+        dotfile << parseTree.graphviz() << std::endl;
+        dotfile.close();
+    }
 
     return 0;
 }

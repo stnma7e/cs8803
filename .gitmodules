@@ -1,0 +1,3 @@
+[submodule "tiger/vendor/argparse"]
+	path = tiger/vendor/argparse
+	url = https://github.com/p-ranav/argparse
