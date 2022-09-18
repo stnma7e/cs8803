@@ -7,11 +7,12 @@
 #include "TigerLexer.h"
 #include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
+#include "TokenInfo.h"
 
 using std::cout;
 using std::endl;
 
-int print_usage(const char *program_name) {
+void print_usage(const char *program_name) {
     printf("USAGE: %s -i <input file>\n", program_name);
 }
 
@@ -39,11 +40,9 @@ int main(int argc, const char *argv[]) {
     TigerFileBaseVisitor vis;
     const TokenInfo program = std::any_cast<TokenInfo>(vis.visit(tree));
 
-    cout << program.token_type << endl;
-
-    for (const auto t : vis.getTokens()) {
-        //cout << "<" << t.first <<  ", \"" << t.second << "\">" << endl;
-    }
+    std::ofstream dotfile("graph.dot");
+    dotfile << program.graphviz();
+    dotfile.close();
 
     return 0;
 }

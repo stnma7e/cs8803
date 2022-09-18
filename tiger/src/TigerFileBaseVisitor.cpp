@@ -5,6 +5,7 @@
 
 #include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
+#include "TokenInfo.h"
 
 std::pair<std::string, std::string> token(const std::string& token_type, antlr4::tree::TerminalNode *token_value) {
     return std::pair(token_type, token_value->getText());

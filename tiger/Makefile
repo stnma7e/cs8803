@@ -45,13 +45,16 @@ GENERATED_OBJECTS = \
 	$(BUILD)/TigerBaseListener.o \
 	$(BUILD)/TigerListener.o
 HEADERS = \
-	$(SRC)/TigerFileBaseVisitor.h
+	$(SRC)/TigerFileBaseVisitor.h \
+	$(SRC)/TokenInfo.h
 SOURCES = \
 	$(SRC)/tigerc.cpp \
-	$(SRC)/TigerFileBaseVisitor.cpp
+	$(SRC)/TigerFileBaseVisitor.cpp \
+	$(SRC)/TokenInfo.cpp
 OBJECTS = \
 	$(BUILD)/tigerc.o \
-	$(BUILD)/TigerFileBaseVisitor.o
+	$(BUILD)/TigerFileBaseVisitor.o \
+	$(BUILD)/TokenInfo.o
 
 all : dirs $(BIN)/tigerc
 $(BIN)/tigerc: $(OBJECTS) $(GENERATED_OBJECTS)

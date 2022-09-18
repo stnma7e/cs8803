@@ -59,33 +59,4 @@ private:
     virtual std::any visitValue_tail(TigerParser::Value_tailContext *context);
 };
 
-struct TokenInfo {
-    typedef std::vector<std::shared_ptr<TokenInfo>> Children;
-
-    TokenInfo(antlr4::tree::TerminalNode *node, TokenInfo::Children&& children)
-        : token_type(node->getText()),
-          node(node),
-          children(children)
-    {}
-
-    TokenInfo(const std::string &token_type, TokenInfo::Children&& children)
-        : token_type(token_type),
-          children(children)
-    {}
-
-    TokenInfo(const std::string& token_type, antlr4::tree::TerminalNode *node)
-        : token_type(token_type),
-          node(node)
-    {}
-
-    TokenInfo(antlr4::tree::TerminalNode *node)
-        : token_type(node->getText()),
-          node(node)
-    {}
-
-    const std::string token_type;
-    antlr4::tree::TerminalNode *node;
-    const Children children;
-};
-
 #endif
