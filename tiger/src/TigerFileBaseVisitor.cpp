@@ -468,9 +468,9 @@ std::any TigerFileBaseVisitor::visitFunctCall(TigerParser::FunctCallContext *con
     return TokenInfo("stat", TokenInfo::Children{
         std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
         std::make_shared<TokenInfo>("OPENPAREN: " + context->OPENPAREN()->getText()),
-        //std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-        //    context->expr_list()->accept(this)
-        //)),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr_list()->accept(this)
+        )),
         std::make_shared<TokenInfo>("CLOSEPAREN: " + context->CLOSEPAREN()->getText()),
         std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
     });
@@ -491,9 +491,9 @@ std::any TigerFileBaseVisitor::visitReturn(TigerParser::ReturnContext *context) 
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
     return TokenInfo("stat", TokenInfo::Children{
         std::make_shared<TokenInfo>(context->RETURN()),
-//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-//            context->optreturn()->accept(this)
-//        )),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->optreturn()->accept(this)
+        )),
         std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON())
     });
 }
@@ -518,18 +518,32 @@ std::any TigerFileBaseVisitor::visitLet(TigerParser::LetContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitOptreturn(TigerParser::OptreturnContext *context) {
+    TokenInfo::Children children;
+
     if (context->expr()) {
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )));
         context->expr()->accept(this);
     }
-    return nullptr;
+
+    return TokenInfo("optreturn", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitOptprefix(TigerParser::OptprefixContext *context) {
+    TokenInfo::Children children;
+
     if (context->value()) {
         context->value()->accept(this);
         tokens.push_back(token("ASSIGN", context->ASSIGN()));
+
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->value()->accept(this)
+        )));
+        children.push_back(std::make_shared<TokenInfo>("ASSIGN", context->ASSIGN()));
     }
-    return nullptr;
+
+    return TokenInfo("optprefix", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
@@ -573,61 +587,94 @@ std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
 std::any TigerFileBaseVisitor::visitBinary_operator(TigerParser::Binary_operatorContext *context) {
     if (context->PLUS()) {
         tokens.push_back(token("PLUS", context->PLUS()));
+        return TokenInfo("binary_operator: " + context->PLUS()->getText());
     }
     if (context->MINUS()) {
         tokens.push_back(token("MINUS", context->MINUS()));
+        return TokenInfo("binary_operator: " + context->MINUS()->getText());
     }
     if (context->MULT()) {
         tokens.push_back(token("MULT", context->MULT()));
+        return TokenInfo("binary_operator: " + context->MULT()->getText());
     }
     if (context->DIV()) {
         tokens.push_back(token("DIV", context->DIV()));
+        return TokenInfo("binary_operator: " + context->DIV()->getText());
     }
     if (context->POW()) {
         tokens.push_back(token("POW", context->POW()));
+        return TokenInfo("binary_operator: " + context->POW()->getText());
     }
     if (context->EQUAL()) {
         tokens.push_back(token("EQUAL", context->EQUAL()));
+        return TokenInfo("binary_operator: " + context->EQUAL()->getText());
     }
     if (context->NEQUAL()) {
         tokens.push_back(token("NEQUAL", context->NEQUAL()));
+        return TokenInfo("binary_operator: " + context->NEQUAL()->getText());
     }
     if (context->LESS()) {
         tokens.push_back(token("LESS", context->LESS()));
+        return TokenInfo("binary_operator: " + context->LESS()->getText());
     }
     if (context->LESSEQ()) {
         tokens.push_back(token("LESSEQ", context->LESSEQ()));
+        return TokenInfo("binary_operator: " + context->LESSEQ()->getText());
     }
     if (context->GREAT()) {
         tokens.push_back(token("GREAT", context->GREAT()));
+        return TokenInfo("binary_operator: " + context->GREAT()->getText());
     }
     if (context->GREATEQ()) {
         tokens.push_back(token("GREATEQ", context->GREATEQ()));
+        return TokenInfo("binary_operator: " + context->GREATEQ()->getText());
     }
     if (context->OR()) {
         tokens.push_back(token("OR", context->OR()));
+        return TokenInfo("binary_operator: " + context->OR()->getText());
     }
     if (context->AND()) {
         tokens.push_back(token("AND", context->AND()));
+        return TokenInfo("binary_operator: " + context->AND()->getText());
     }
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitExpr_list(TigerParser::Expr_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->expr()) {
         context->expr()->accept(this);
         context->expr_list_tail()->accept(this);
+
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )));
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr_list_tail()->accept(this)
+        )));
     }
-    return nullptr;
+    return TokenInfo("expr_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitExpr_list_tail(TigerParser::Expr_list_tailContext *context) {
+    TokenInfo::Children children;
+
     if (context->COMMA()) {
         tokens.push_back(token("COMMA", context->COMMA()));
         context->expr()->accept(this);
         context->expr_list_tail()->accept(this);
+
+        children.push_back(std::make_shared<TokenInfo>("COMMA", context->COMMA()));
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr()->accept(this)
+        )));
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->expr_list_tail()->accept(this)
+        )));
     }
-    return nullptr;
+
+    return TokenInfo("optprefix", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {
@@ -635,17 +682,25 @@ std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {
     context->value_tail()->accept(this);
     return TokenInfo("stat", TokenInfo::Children{
         std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
-//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-//            context->value_tail()->accept(this)
-//        )),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->value_tail()->accept(this)
+        )),
     });
 }
 
 std::any TigerFileBaseVisitor::visitValue_tail(TigerParser::Value_tailContext *context) {
+    TokenInfo::Children children;
+
     if (context->OPENBRACK()) {
         tokens.push_back(token("OPENBRACK", context->OPENBRACK()));
         context->value()->accept(this);
         tokens.push_back(token("CLOSEBRACK", context->CLOSEBRACK()));
+
+        children.push_back(std::make_shared<TokenInfo>("OPENBRACK", context->OPENBRACK()));
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->value()->accept(this)
+        )));
+        children.push_back(std::make_shared<TokenInfo>("CLOSEBRACK", context->CLOSEBRACK()));
     }
-    return nullptr;
+    return TokenInfo("value_tail", std::move(children));
 }
