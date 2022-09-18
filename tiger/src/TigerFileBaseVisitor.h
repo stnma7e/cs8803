@@ -44,7 +44,7 @@ private:
     virtual std::any visitIfThenElse(TigerParser::IfThenElseContext *context);
     virtual std::any visitWhile(TigerParser::WhileContext *context);
     virtual std::any visitFor(TigerParser::ForContext *context);
-    virtual std::any visitOptAssign(TigerParser::OptAssignContext *context);
+    virtual std::any visitFunctCall(TigerParser::FunctCallContext *context);
     virtual std::any visitBreak(TigerParser::BreakContext *context);
     virtual std::any visitReturn(TigerParser::ReturnContext *context);
     virtual std::any visitLet(TigerParser::LetContext *context);

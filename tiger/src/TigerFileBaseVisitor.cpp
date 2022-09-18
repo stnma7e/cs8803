@@ -209,27 +209,65 @@ std::any TigerFileBaseVisitor::visitValueAssign(TigerParser::ValueAssignContext 
 }
 
 std::any TigerFileBaseVisitor::visitIfThen(TigerParser::IfThenContext *context) {
-
+    tokens.push_back(token("IF", context->IF()));
+    context->expr()->accept(this);
+    tokens.push_back(token("THEN", context->THEN()));
+    context->stat_seq()->accept(this);
+    tokens.push_back(token("ENDIF", context->ENDIF()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitIfThenElse(TigerParser::IfThenElseContext *context) {
-
+    tokens.push_back(token("IF", context->IF()));
+    context->expr()->accept(this);
+    tokens.push_back(token("THEN", context->THEN()));
+    context->stat_seq(0)->accept(this);
+    tokens.push_back(token("ELSE", context->ELSE()));
+    context->stat_seq(1)->accept(this);
+    tokens.push_back(token("ENDIF", context->ENDIF()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitWhile(TigerParser::WhileContext *context) {
-
+    tokens.push_back(token("WHILE", context->WHILE()));
+    context->expr()->accept(this);
+    tokens.push_back(token("DO", context->DO()));
+    context->stat_seq()->accept(this);
+    tokens.push_back(token("ENDDO", context->ENDDO()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitFor(TigerParser::ForContext *context) {
-
+    tokens.push_back(token("FOR", context->FOR()));
+    tokens.push_back(token("ID", context->ID()));
+    tokens.push_back(token("ASSIGN", context->ASSIGN()));
+    context->expr(0)->accept(this);
+    tokens.push_back(token("TO", context->TO()));
+    context->expr(1)->accept(this);
+    tokens.push_back(token("DO", context->DO()));
+    context->stat_seq()->accept(this);
+    tokens.push_back(token("ENDDO", context->ENDDO()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
-std::any TigerFileBaseVisitor::visitOptAssign(TigerParser::OptAssignContext *context) {
-
+std::any TigerFileBaseVisitor::visitFunctCall(TigerParser::FunctCallContext *context) {
+    context->optprefix()->accept(this);
+    tokens.push_back(token("ID", context->ID()));
+    tokens.push_back(token("OPENPAREN", context->OPENPAREN()));
+    context->expr_list()->accept(this);
+    tokens.push_back(token("CLOSEPAREN", context->CLOSEPAREN()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitBreak(TigerParser::BreakContext *context) {
-
+    tokens.push_back(token("BREAK", context->BREAK()));
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitReturn(TigerParser::ReturnContext *context) {
@@ -240,7 +278,12 @@ std::any TigerFileBaseVisitor::visitReturn(TigerParser::ReturnContext *context) 
 }
 
 std::any TigerFileBaseVisitor::visitLet(TigerParser::LetContext *context) {
-
+    tokens.push_back(token("LET", context->LET()));
+    context->decl_segment()->accept(this);
+    tokens.push_back(token("BEGIN", context->BEGIN()));
+    context->stat_seq()->accept(this);
+    tokens.push_back(token("END", context->END()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitOptreturn(TigerParser::OptreturnContext *context) {
@@ -251,7 +294,11 @@ std::any TigerFileBaseVisitor::visitOptreturn(TigerParser::OptreturnContext *con
 }
 
 std::any TigerFileBaseVisitor::visitOptprefix(TigerParser::OptprefixContext *context) {
-
+    if (context->value()) {
+        context->value()->accept(this);
+        tokens.push_back(token("ASSIGN", context->ASSIGN()));
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
@@ -328,11 +375,20 @@ std::any TigerFileBaseVisitor::visitBinary_operator(TigerParser::Binary_operator
 }
 
 std::any TigerFileBaseVisitor::visitExpr_list(TigerParser::Expr_listContext *context) {
-
+    if (context->expr()) {
+        context->expr()->accept(this);
+        context->expr_list_tail()->accept(this);
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitExpr_list_tail(TigerParser::Expr_list_tailContext *context) {
-
+    if (context->COMMA()) {
+        tokens.push_back(token("COMMA", context->COMMA()));
+        context->expr()->accept(this);
+        context->expr_list_tail()->accept(this);
+    }
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {

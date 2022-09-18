@@ -39,9 +39,36 @@ end
 
 function main(): int
 begin
+    let
+        var x: int;
+    begin
+        x := 1;
+    end
 
-x := 0;
+    x := 0;
 
+    if x then
+        y := 0;
+        x := 1;
+    endif;
+
+    if x then
+        y := 0;
+        x := 1;
+    else
+        z := 1;
+    endif;
+
+    while x do
+        x := 1;
+    enddo;
+
+    for x := 0 to 1 do
+        x := 1;
+        break;
+    enddo;
+
+    x := y(123);
 end
 
 end
