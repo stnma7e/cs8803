@@ -31,6 +31,9 @@ std::any TigerFileBaseVisitor::visitTiger_program(TigerParser::Tiger_programCont
             std::any_cast<TokenInfo>(context->decl_segment()->accept(this))
         ),
         std::make_shared<TokenInfo>(context->BEGIN()),
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->funct_list()->accept(this))
+        ),
         std::make_shared<TokenInfo>(context->END()),
     });
 }
@@ -86,13 +89,21 @@ std::any TigerFileBaseVisitor::visitVar_decl_list(TigerParser::Var_decl_listCont
 }
 
 std::any TigerFileBaseVisitor::visitFunct_list(TigerParser::Funct_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->funct()) {
         context->funct()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->funct()->accept(this))
+        ));
     }
     if (context->funct_list()) {
         context->funct_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->funct_list()->accept(this))
+        ));
     }
-    return nullptr;
+    return TokenInfo("funct_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitType_decl(TigerParser::Type_declContext *context) {
@@ -236,7 +247,23 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
     tokens.push_back(token(context->BEGIN()));
     context->stat_seq()->accept(this);
     tokens.push_back(token(context->END()));
-    return nullptr;
+    return TokenInfo("funct", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->FUNCTION()),
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+        std::make_shared<TokenInfo>("OPENPAREN", context->OPENPAREN()),
+  //      std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+  //          context->param_list()->accept(this)
+  //      )),
+        std::make_shared<TokenInfo>("CLOSEPAREN", context->CLOSEPAREN()),
+ //       std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+ //           context->ret_type()->accept(this)
+ //       )),
+        std::make_shared<TokenInfo>(context->BEGIN()),
+//        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+//            context->stat_seq()->accept(this)
+//        )),
+        std::make_shared<TokenInfo>(context->END()),
+    });
 }
 
 std::any TigerFileBaseVisitor::visitParam_list(TigerParser::Param_listContext *context) {
