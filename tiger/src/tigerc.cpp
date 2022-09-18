@@ -45,17 +45,28 @@ int main(int argc, char** argv) {
     antlr4::ANTLRInputStream input(stream);
     TigerLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
+    TigerParser parser(&tokens);
+    antlr4::tree::ParseTree *tree = parser.tiger_program();
 
     if (program.get<bool>("-l")) {
+        tokens.fill();
+        const auto vocab = lexer.getVocabulary();
+
         auto token_filename = input_filename;
         token_filename.replace_extension(".tokens");
         std::ofstream tokenFile(token_filename);
-        tokenFile << tokens.getText() << std::endl;
+
+        for (auto token : tokens.getTokens()) {
+            tokenFile << "<"
+                      << vocab.getSymbolicName(token->getType())
+                      << ", "
+                      << token->getText()
+                      << ">"
+                      << std::endl;
+        }
+
         tokenFile.close();
     }
-
-    TigerParser parser(&tokens);
-    antlr4::tree::ParseTree *tree = parser.tiger_program();
 
     if (program.get<bool>("-p")) {
         TigerFileBaseVisitor vis;
