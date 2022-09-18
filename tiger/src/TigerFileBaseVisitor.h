@@ -11,16 +11,6 @@
 
 
 class TigerFileBaseVisitor : public TigerVisitor {
-public:
-    typedef std::vector<std::pair<std::string, std::string>> TokenMap;
-
-    const TokenMap& getTokens() const {
-        return tokens;
-    }
-
-private:
-    TokenMap tokens;
-
     virtual std::any visitTiger_program(TigerParser::Tiger_programContext *context);
     virtual std::any visitDecl_segment(TigerParser::Decl_segmentContext *context);
     virtual std::any visitType_decl_list(TigerParser::Type_decl_listContext *context);
