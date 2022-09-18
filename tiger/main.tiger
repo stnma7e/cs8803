@@ -38,6 +38,12 @@ return 0;
 end
 
 function main(): int
+
+/* COMMENT
+asdf
+asfd
+asfd */
+
 begin
     let
         var x: int;

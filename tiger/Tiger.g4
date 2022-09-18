@@ -1,5 +1,65 @@
 grammar Tiger;
 
+ARRAY : 'array' ;
+BEGIN : 'begin' ;
+BREAK : 'break' ;
+DO : 'do' ;
+ELSE : 'else' ;
+END : 'end' ;
+ENDDO : 'enddo' ;
+ENDIF : 'endif' ;
+FLOAT : 'float' ;
+FOR : 'for' ;
+FUNCTION : 'function' ;
+IF : 'if' ;
+INT : 'int' ;
+LET : 'let' ;
+OF : 'of' ;
+PROGRAM : 'program' ;
+RETURN : 'return' ;
+STATIC : 'static' ;
+THEN : 'then' ;
+TO : 'to' ;
+TYPE : 'type' ;
+VAR : 'var' ;
+WHILE : 'while' ;
+
+COMMA : ',' ;
+DOT : '.' ;
+COLON : ':' ;
+SEMICOLON : ';' ;
+OPENPAREN : '(' ;
+CLOSEPAREN : ')' ;
+OPENBRACK : '[' ;
+CLOSEBRACK : ']' ;
+OPENCURLY : '{' ;
+CLOSECURLY : '}' ;
+
+PLUS : '+' ;
+MINUS : '-' ;
+MULT : '*' ;
+DIV : '/' ;
+POW : '**' ;
+EQUAL : '==' ;
+NEQUAL : '!=' ;
+LESS : '<' ;
+LESSEQ : '<=' ;
+GREAT : '>' ;
+GREATEQ : '>=' ;
+AND : '&' ;
+OR : '|' ;
+
+ASSIGN : ':=' ;
+TASSIGN : '=' ;
+
+ID : [_a-zA-Z]+[_0-9a-zA-Z]* ;
+INTLIT : '0'
+       | [1-9][0-9]* ;
+FLOATLIT : [0-9]+'.'[0-9]* ;
+
+WS : [ \t\r\n]+ -> skip ;
+COMMENT : '/*'.*?'*/' -> skip ;
+
 tiger_program : PROGRAM ID LET decl_segment BEGIN funct_list END ;
 
 decl_segment : type_decl_list var_decl_list ;
@@ -84,57 +144,3 @@ expr_list_tail : COMMA expr expr_list_tail
 value : ID value_tail ;
 value_tail : OPENBRACK value CLOSEBRACK
            | ;
-
-PROGRAM : 'program' ;
-LET : 'let' ;
-BEGIN : 'begin' ;
-END : 'end' ;
-TYPE : 'type' ;
-ARRAY : 'array' ;
-OF : 'of' ;
-INT : 'int' ;
-FLOAT : 'float' ;
-VAR : 'var' ;
-STATIC : 'static' ;
-FUNCTION : 'function' ;
-IF : 'if' ;
-THEN : 'then' ;
-ELSE : 'else' ;
-ENDIF : 'endif' ;
-WHILE : 'while' ;
-DO : 'do' ;
-ENDDO : 'enddo' ;
-FOR : 'for' ;
-ASSIGN : ':=' ;
-TO : 'to' ;
-BREAK : 'break' ;
-RETURN : 'return' ;
-
-INTLIT : [0-9]+ ;
-FLOATLIT : [0-9]+'.'[0-9]* ;
-
-TASSIGN : '=' ;
-COLON : ':' ;
-SEMICOLON : ';' ;
-COMMA : ',' ;
-OPENPAREN : '(' ;
-CLOSEPAREN : ')' ;
-OPENBRACK : '[' ;
-CLOSEBRACK : ']' ;
-
-PLUS : '+' ;
-MINUS : '-' ;
-MULT : '*' ;
-DIV : '/' ;
-POW : '**' ;
-EQUAL : '==' ;
-NEQUAL : '!=' ;
-LESS : '<' ;
-LESSEQ : '<=' ;
-GREAT : '>' ;
-GREATEQ : '>=' ;
-AND : '&' ;
-OR : '|' ;
-WS  :   [ \t\r\n]+ -> skip ;
-
-ID : [_a-zA-Z]+[_0-9a-zA-Z]* ;
