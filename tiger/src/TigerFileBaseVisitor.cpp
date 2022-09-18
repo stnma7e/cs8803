@@ -369,6 +369,9 @@ std::any TigerFileBaseVisitor::visitFor(TigerParser::ForContext *context) {
 
 std::any TigerFileBaseVisitor::visitFunctCall(TigerParser::FunctCallContext *context) {
     return TokenInfo("stat", TokenInfo::Children{
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->optprefix()->accept(this)
+        )),
         std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
         std::make_shared<TokenInfo>("OPENPAREN: " + context->OPENPAREN()->getText()),
         std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
@@ -550,7 +553,7 @@ std::any TigerFileBaseVisitor::visitExpr_list_tail(TigerParser::Expr_list_tailCo
         )));
     }
 
-    return TokenInfo("optprefix", std::move(children));
+    return TokenInfo("expr_list_tail", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {

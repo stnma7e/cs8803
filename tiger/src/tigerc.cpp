@@ -40,8 +40,6 @@ int main(int argc, const char *argv[]) {
     TigerFileBaseVisitor vis;
     const TokenInfo program = std::any_cast<TokenInfo>(vis.visit(tree));
 
-    return 0;
-
     std::ofstream dotfile("graph.dot");
     dotfile << program.graphviz();
     dotfile.close();
