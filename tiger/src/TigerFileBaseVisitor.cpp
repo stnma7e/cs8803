@@ -55,10 +55,14 @@ std::any TigerFileBaseVisitor::visitType_decl_list(TigerParser::Type_decl_listCo
     TokenInfo::Children children;
 
     if (context->type_decl()) {
-        context->type_decl()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->type_decl()->accept(this))
+        ));
     }
     if (context->type_decl_list()) {
-        context->type_decl_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->type_decl_list()->accept(this))
+        ));
     }
 
     return TokenInfo("type_decl_list", std::move(children));
@@ -68,10 +72,14 @@ std::any TigerFileBaseVisitor::visitVar_decl_list(TigerParser::Var_decl_listCont
     TokenInfo::Children children;
 
     if (context->var_decl()) {
-        context->var_decl()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->var_decl()->accept(this))
+        ));
     }
     if (context->var_decl_list()) {
-        context->var_decl_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->var_decl_list()->accept(this))
+        ));
     }
 
     return TokenInfo("var_decl_list", std::move(children));
@@ -88,18 +96,33 @@ std::any TigerFileBaseVisitor::visitFunct_list(TigerParser::Funct_listContext *c
 }
 
 std::any TigerFileBaseVisitor::visitType_decl(TigerParser::Type_declContext *context) {
+    TokenInfo::Children children;
+
     tokens.push_back(token(context->TYPE()));
     tokens.push_back(token("ID", context->ID()));
     tokens.push_back(token("TASSIGN", context->TASSIGN()));
     context->type()->accept(this);
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+
+    return TokenInfo("type_decl", TokenInfo::Children{
+        std::make_shared<TokenInfo>(context->TYPE()),
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+        std::make_shared<TokenInfo>("TASSIGN", context->TASSIGN()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->type()->accept(this)
+        )),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON()),
+    });
 }
 
 std::any TigerFileBaseVisitor::visitType(TigerParser::TypeContext *context) {
+    TokenInfo::Children children;
+
     //TODO how do I select only one of these?
     if (context->base_type()) {
-        context->base_type()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->base_type()->accept(this)
+        )));
     }
     if (context->ARRAY()) {
         //TODO fix this syntax
@@ -113,58 +136,94 @@ std::any TigerFileBaseVisitor::visitType(TigerParser::TypeContext *context) {
     if (context->ID()) {
         tokens.push_back(token("ID", context->ID()));
     }
-    return nullptr;
+
+    return TokenInfo("type", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitBase_type(TigerParser::Base_typeContext *context) {
     if (context->INT()) {
         tokens.push_back(token(context->INT()));
+        return TokenInfo("base_type: " + context->INT()->getText());
     }
     if (context->FLOAT()) {
         tokens.push_back(token(context->FLOAT()));
+        return TokenInfo("base_type: " + context->FLOAT()->getText());
     }
     return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitVar_decl(TigerParser::Var_declContext *context) {
+    TokenInfo::Children children;
+
     context->storage_class()->accept(this);
     context->id_list()->accept(this);
     tokens.push_back(token("COLON", context->COLON()));
     context->type()->accept(this);
     context->optional_init()->accept(this);
     tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
-    return nullptr;
+
+    return TokenInfo("var_decl", std::move(TokenInfo::Children{
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->storage_class()->accept(this))
+        ),
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->id_list()->accept(this))
+        ),
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->type()->accept(this))
+        ),
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->optional_init()->accept(this))
+        ),
+        std::make_shared<TokenInfo>("COLON", context->COLON()),
+        std::make_shared<TokenInfo>("SEMICOLON", context->SEMICOLON()),
+    }));
 }
 
 std::any TigerFileBaseVisitor::visitStorage_class(TigerParser::Storage_classContext *context) {
     if (context->VAR()) {
         tokens.push_back(token(context->VAR()));
+        return TokenInfo("storage_class: " + context->VAR()->getText());
     }
     if (context->STATIC()) {
         tokens.push_back(token(context->STATIC()));
+        return TokenInfo("storage_class: " + context->STATIC()->getText());
     }
-    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitId_list(TigerParser::Id_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->ID()) {
         tokens.push_back(token("ID", context->ID()));
+        children.push_back(std::make_shared<TokenInfo>("ID: " + context->ID()->getText()));
     }
     if (context->COMMA()) {
         tokens.push_back(token("COMMA", context->COMMA()));
+        children.push_back(std::make_shared<TokenInfo>("COMMA", context->COMMA()));
     }
     if (context->id_list()) {
         context->id_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->id_list()->accept(this))
+        ));
     }
-    return nullptr;
+    return TokenInfo("id_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitOptional_init(TigerParser::Optional_initContext *context) {
+    TokenInfo::Children children;
+
     if (context->ASSIGN()) {
         tokens.push_back(token("ASSIGN", context->ASSIGN()));
         context->const_()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>("ASSIGN", context->ASSIGN()));
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->const_()->accept(this))
+        ));
     }
-    return nullptr;
+
+    return TokenInfo("optional_init", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
@@ -348,9 +407,11 @@ std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
 std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
     if (context->INTLIT()) {
         tokens.push_back(token("INTLIT", context->INTLIT()));
+        return TokenInfo("const: " + context->INTLIT()->getText());
     }
     if (context->FLOATLIT()) {
         tokens.push_back(token("FLOATLIT", context->FLOATLIT()));
+        return TokenInfo("const: " + context->FLOATLIT()->getText());
     }
     return nullptr;
 }
