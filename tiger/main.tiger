@@ -12,6 +12,11 @@ var x, y, z : int := 3;
 
 begin
 
+function noret()
+begin
+return;
+end
+
 function main(): int
 begin
 return 0;

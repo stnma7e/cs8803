@@ -251,9 +251,9 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
         std::make_shared<TokenInfo>(context->FUNCTION()),
         std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
         std::make_shared<TokenInfo>("OPENPAREN", context->OPENPAREN()),
-  //      std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-  //          context->param_list()->accept(this)
-  //      )),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->param_list()->accept(this)
+        )),
         std::make_shared<TokenInfo>("CLOSEPAREN", context->CLOSEPAREN()),
         std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
             context->ret_type()->accept(this)
@@ -267,13 +267,22 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
 }
 
 std::any TigerFileBaseVisitor::visitParam_list(TigerParser::Param_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->param()) {
         context->param()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->param()->accept(this)
+        )));
     }
     if (context->param_list_tail()) {
         context->param_list_tail()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->param_list_tail()->accept(this)
+        )));
     }
-    return nullptr;
+
+    return TokenInfo("param_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitParam_list_tail(TigerParser::Param_list_tailContext *context) {
@@ -284,7 +293,7 @@ std::any TigerFileBaseVisitor::visitParam_list_tail(TigerParser::Param_list_tail
             context->param_list_tail()->accept(this);
         }
     }
-    return nullptr;
+    return TokenInfo();
 }
 
 std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *context) {
@@ -298,14 +307,20 @@ std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *conte
             )),
         });
     }
-    return TokenInfo();
+    return TokenInfo("ret_type: void");
 }
 
 std::any TigerFileBaseVisitor::visitParam(TigerParser::ParamContext *context) {
     tokens.push_back(token("ID", context->ID()));
     tokens.push_back(token("COLON", context->COLON()));
     context->type()->accept(this);
-    return nullptr;
+    return TokenInfo("param", TokenInfo::Children{
+        std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
+        std::make_shared<TokenInfo>("COLON", context->COLON()),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->type()->accept(this)
+        )),
+    });
 }
 
 std::any TigerFileBaseVisitor::visitStat_seq(TigerParser::Stat_seqContext *context) {
