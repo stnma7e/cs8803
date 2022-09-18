@@ -255,9 +255,9 @@ std::any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
   //          context->param_list()->accept(this)
   //      )),
         std::make_shared<TokenInfo>("CLOSEPAREN", context->CLOSEPAREN()),
- //       std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
- //           context->ret_type()->accept(this)
- //       )),
+        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+            context->ret_type()->accept(this)
+        )),
         std::make_shared<TokenInfo>(context->BEGIN()),
 //        std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
 //            context->stat_seq()->accept(this)
@@ -291,8 +291,14 @@ std::any TigerFileBaseVisitor::visitRet_type(TigerParser::Ret_typeContext *conte
     if (context->COLON()) {
         tokens.push_back(token("COLON", context->COLON()));
         context->type()->accept(this);
+        return TokenInfo("return", TokenInfo::Children{
+            std::make_shared<TokenInfo>("COLON", context->COLON()),
+            std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
+                context->type()->accept(this)
+            )),
+        });
     }
-    return nullptr;
+    return TokenInfo();
 }
 
 std::any TigerFileBaseVisitor::visitParam(TigerParser::ParamContext *context) {

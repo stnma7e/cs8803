@@ -45,6 +45,8 @@ struct TokenInfo {
         : token_type(token_type)
     {}
 
+    TokenInfo() {}
+
     const std::string graphviz() const;
 
     const std::string token_type;
