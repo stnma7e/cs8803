@@ -201,7 +201,11 @@ std::any TigerFileBaseVisitor::visitStat_seq(TigerParser::Stat_seqContext *conte
 }
 
 std::any TigerFileBaseVisitor::visitValueAssign(TigerParser::ValueAssignContext *context) {
-
+    context->value()->accept(this);
+    tokens.push_back(token("ASSIGN", context->ASSIGN()));
+    context->expr()->accept(this);
+    tokens.push_back(token("SEMICOLON", context->SEMICOLON()));
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitIfThen(TigerParser::IfThenContext *context) {
@@ -332,9 +336,16 @@ std::any TigerFileBaseVisitor::visitExpr_list_tail(TigerParser::Expr_list_tailCo
 }
 
 std::any TigerFileBaseVisitor::visitValue(TigerParser::ValueContext *context) {
-
+    tokens.push_back(token("ID", context->ID()));
+    context->value_tail()->accept(this);
+    return nullptr;
 }
 
 std::any TigerFileBaseVisitor::visitValue_tail(TigerParser::Value_tailContext *context) {
-
+    if (context->OPENBRACK()) {
+        tokens.push_back(token("OPENBRACK", context->OPENBRACK()));
+        context->value()->accept(this);
+        tokens.push_back(token("CLOSEBRACK", context->CLOSEBRACK()));
+    }
+    return nullptr;
 }
