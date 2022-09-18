@@ -136,6 +136,7 @@ binary_operator : PLUS  | MINUS  | MULT  | DIV | POW
                 | EQUAL | NEQUAL
                 | LESS  | LESSEQ | GREAT | GREATEQ
                 | AND   | OR;
+
 expr_list : expr expr_list_tail
           | ;
 expr_list_tail : COMMA expr expr_list_tail

@@ -1,4 +1,7 @@
 #include <string>
+#include <memory>
+#include <iostream>
+#include <ostream>
 
 #include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
@@ -20,37 +23,57 @@ std::any TigerFileBaseVisitor::visitTiger_program(TigerParser::Tiger_programCont
     tokens.push_back(token(context->BEGIN()));
     context->funct_list()->accept(this);
     tokens.push_back(token(context->END()));
-    return nullptr;
+    return TokenInfo(context->PROGRAM(), TokenInfo::Children{
+        std::make_shared<TokenInfo>("ID", context->ID()),
+        std::make_shared<TokenInfo>(context->LET()),
+        std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->decl_segment()->accept(this))
+        ),
+        std::make_shared<TokenInfo>(context->BEGIN()),
+        std::make_shared<TokenInfo>(context->END()),
+    });
 }
 
 std::any TigerFileBaseVisitor::visitDecl_segment(TigerParser::Decl_segmentContext *context) {
+    TokenInfo::Children children;
+
     if (context->type_decl_list()) {
-        context->type_decl_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->type_decl_list()->accept(this))
+        ));
     }
     if (context->var_decl_list()) {
-        context->var_decl_list()->accept(this);
+        children.push_back(std::make_shared<TokenInfo>(
+            std::any_cast<TokenInfo>(context->var_decl_list()->accept(this))
+        ));
     }
-    return nullptr;
+    return TokenInfo("decl_segment", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitType_decl_list(TigerParser::Type_decl_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->type_decl()) {
         context->type_decl()->accept(this);
     }
     if (context->type_decl_list()) {
         context->type_decl_list()->accept(this);
     }
-    return nullptr;
+
+    return TokenInfo("type_decl_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitVar_decl_list(TigerParser::Var_decl_listContext *context) {
+    TokenInfo::Children children;
+
     if (context->var_decl()) {
         context->var_decl()->accept(this);
     }
     if (context->var_decl_list()) {
         context->var_decl_list()->accept(this);
     }
-    return nullptr;
+
+    return TokenInfo("var_decl_list", std::move(children));
 }
 
 std::any TigerFileBaseVisitor::visitFunct_list(TigerParser::Funct_listContext *context) {

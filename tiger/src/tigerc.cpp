@@ -29,14 +29,20 @@ int main(int argc, const char *argv[]) {
     antlr4::ANTLRInputStream input(stream);
     TigerLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
+    for (int i = 0; i < tokens.size(); i++) {
+        cout << tokens.get(i) << endl;
+    }
+    cout << tokens.getText() << endl;
     TigerParser parser(&tokens);
     antlr4::tree::ParseTree *tree = parser.tiger_program();
 
     TigerFileBaseVisitor vis;
-    vis.visit(tree);
+    const TokenInfo program = std::any_cast<TokenInfo>(vis.visit(tree));
+
+    cout << program.token_type << endl;
 
     for (const auto t : vis.getTokens()) {
-        cout << "<" << t.first <<  ", \"" << t.second << "\">" << endl;
+        //cout << "<" << t.first <<  ", \"" << t.second << "\">" << endl;
     }
 
     return 0;
