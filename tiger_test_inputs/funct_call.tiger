@@ -1,0 +1,12 @@
+program main
+let
+begin
+
+function noret()
+begin
+    x := y(123);
+    0asfd();
+    return;
+end
+
+end
