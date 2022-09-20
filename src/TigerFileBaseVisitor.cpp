@@ -193,7 +193,7 @@ std::any TigerFileBaseVisitor::visitOptional_init(TigerParser::Optional_initCont
     if (context->ASSIGN()) {
         children.push_back(std::make_shared<TokenInfo>("ASSIGN", context->ASSIGN()));
         children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-            context->const_()->accept(this)
+            context->constt()->accept(this)
         )));
     }
 
@@ -445,9 +445,9 @@ std::any TigerFileBaseVisitor::visitOptprefix(TigerParser::OptprefixContext *con
 std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
     TokenInfo::Children children;
 
-    if (context->const_()) {
+    if (context->constt()) {
         children.push_back(std::make_shared<TokenInfo>(std::any_cast<TokenInfo>(
-            context->const_()->accept(this)
+            context->constt()->accept(this)
         )));
     }
     if (context->value()) {
@@ -477,7 +477,7 @@ std::any TigerFileBaseVisitor::visitExpr(TigerParser::ExprContext *context) {
     return TokenInfo("expr", std::move(children));
 }
 
-std::any TigerFileBaseVisitor::visitConst(TigerParser::ConstContext *context) {
+std::any TigerFileBaseVisitor::visitConstt(TigerParser::ConsttContext *context) {
     if (context->INTLIT()) {
         return TokenInfo("const: " + context->INTLIT()->getText());
     }

@@ -90,7 +90,7 @@ storage_class : VAR
 id_list : ID
         | ID COMMA id_list ;
 
-optional_init : ASSIGN const
+optional_init : ASSIGN constt
               | ;
 
 funct : FUNCTION ID OPENPAREN param_list CLOSEPAREN ret_type BEGIN stat_seq END ;
@@ -125,12 +125,12 @@ optreturn : expr
 optprefix : value ASSIGN
           | ;
 
-expr : const
+expr : constt
      | value
      | expr binary_operator expr
      | OPENPAREN expr CLOSEPAREN ;
 
-const : INTLIT | FLOATLIT ;
+constt : INTLIT | FLOATLIT ;
 
 binary_operator : PLUS  | MINUS  | MULT  | DIV | POW
                 | EQUAL | NEQUAL

@@ -43,7 +43,7 @@ class TigerFileBaseVisitor : public TigerVisitor {
     virtual std::any visitOptreturn(TigerParser::OptreturnContext *context);
     virtual std::any visitOptprefix(TigerParser::OptprefixContext *context);
     virtual std::any visitExpr(TigerParser::ExprContext *context);
-    virtual std::any visitConst(TigerParser::ConstContext *context);
+    virtual std::any visitConstt(TigerParser::ConsttContext *context);
     virtual std::any visitBinary_operator(TigerParser::Binary_operatorContext *context);
     virtual std::any visitExpr_list(TigerParser::Expr_listContext *context);
     virtual std::any visitExpr_list_tail(TigerParser::Expr_list_tailContext *context);
