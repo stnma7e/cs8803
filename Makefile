@@ -9,6 +9,7 @@ RUNTIME = runtime
 BUILD = build
 SRC = src
 ANTLR = java -Xmx500M -cp "/home/delmerico/cs8803/antlr-4.11.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool
+ANTLR = antlr
 ANTLR_RUNTIME = $(PWD)/vendor/antlr4/runtime/src
 ARGPARSE_INC = $(PWD)/vendor/argparse/include
 INCLUDE = \
