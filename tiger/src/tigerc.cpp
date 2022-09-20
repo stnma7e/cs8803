@@ -45,8 +45,6 @@ int main(int argc, char** argv) {
     antlr4::ANTLRInputStream input(stream);
     TigerLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
-    TigerParser parser(&tokens);
-    antlr4::tree::ParseTree *tree = parser.tiger_program();
 
     if (program.get<bool>("-l")) {
         tokens.fill();
@@ -69,12 +67,16 @@ int main(int argc, char** argv) {
     }
 
     if (program.get<bool>("-p")) {
+        TigerParser parser(&tokens);
+        antlr4::tree::ParseTree *tree = parser.tiger_program();
         TigerFileBaseVisitor vis;
         const TokenInfo parseTree = std::any_cast<TokenInfo>(vis.visit(tree));
         auto dot_filename = input_filename;
-        dot_filename.replace_extension(".dot");
+        dot_filename.replace_extension(".tree.gv");
         std::ofstream dotfile(dot_filename);
+
         dotfile << parseTree.graphviz() << std::endl;
+
         dotfile.close();
     }
 
