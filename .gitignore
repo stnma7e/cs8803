@@ -3,5 +3,5 @@ cs8803_bin
 build
 runtime
 vendor/antlr4/build
-tiger_test_inputs/*.dot
+tiger_test_inputs/*.tree.gv
 tiger_test_inputs/*.tokens

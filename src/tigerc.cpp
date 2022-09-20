@@ -1,42 +1,54 @@
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <filesystem>
+#include <experimental/filesystem>
 
-#include "argparse/argparse.hpp"
 #include "antlr4-runtime.h"
 #include "TigerLexer.h"
 #include "TigerParser.h"
 #include "TigerFileBaseVisitor.h"
 #include "TokenInfo.h"
 
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 
+void print_usage() {
+    std::cout << "USAGE: tigerc -i <input tiger file> [-l] [-p]" << std::endl;
+}
 
-int main(int argc, char** argv) {
-    argparse::ArgumentParser program("tigerc");
-    program.add_argument("-i")
-        .required()
-        .help("input file");
-    program.add_argument("-l")
-        .help("write stream of tokens to file")
-        .default_value(false)
-        .implicit_value(true);
-    program.add_argument("-p")
-        .help("write graph of parse tree to file")
-        .default_value(false)
-        .implicit_value(true);
-    try {
-        program.parse_args(argc, argv);
+int main(int argc, const char *argv[]) {
+    const char *input_filename_str = nullptr;
+    bool write_lex = false, write_parse = false;
+
+    if (argc < 3) {
+        print_usage();
+        return 1;
     }
-    catch (const std::runtime_error& err) {
-        std::cerr << err.what() << std::endl;
-        std::cerr << program;
-        std::exit(1);
+    for (int i = 1; i < argc; i++) {
+        if (strcmp("-i", argv[i]) == 0) {
+            if (i + 1 < argc) {
+                input_filename_str = argv[i+1];
+                i += 1;
+            } else {
+                print_usage();
+                return 1;
+            }
+        } else if (strcmp("-l", argv[i]) == 0) {
+            write_lex = true;
+        } else if (strcmp("-p", argv[i]) == 0) {
+            write_parse = true;
+        } else {
+            print_usage();
+            return 1;
+        }
     }
 
-    const auto input_filename_str = program.get<std::string>("-i");
+    if (!input_filename_str) {
+        print_usage();
+        return 1;
+    }
+
     const auto input_filename = fs::path(input_filename_str);
     std::cout << "parsing " << input_filename << std::endl;
 
@@ -52,7 +64,7 @@ int main(int argc, char** argv) {
     TigerLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
 
-    if (program.get<bool>("-l")) {
+    if (write_lex) {
         tokens.fill();
         const auto vocab = lexer.getVocabulary();
 
@@ -72,12 +84,12 @@ int main(int argc, char** argv) {
         tokenFile.close();
     }
 
-    if (program.get<bool>("-p")) {
+    if (write_parse) {
         TigerParser parser(&tokens);
         antlr4::tree::ParseTree *tree = parser.tiger_program();
         TigerFileBaseVisitor vis;
         try {
-            const TokenInfo parseTree = std::any_cast<TokenInfo>(vis.visit(tree));
+            const TokenInfo parseTree = vis.visit(tree).as<TokenInfo>();
             auto dot_filename = input_filename;
             dot_filename.replace_extension(".tree.gv");
             std::ofstream dotfile(dot_filename);

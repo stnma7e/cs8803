@@ -8,18 +8,15 @@ BIN = cs8803_bin
 RUNTIME = runtime
 BUILD = build
 SRC = src
-ANTLR = java -Xmx500M -cp "/home/delmerico/cs8803/antlr-4.11.1-complete.jar:$CLASSPATH" org.antlr.v4.Tool
-ANTLR = antlr
-ANTLR_RUNTIME = $(PWD)/vendor/antlr4/runtime/src
-ARGPARSE_INC = $(PWD)/vendor/argparse/include
+ANTLR = java -Xmx500M -cp "/usr/local/lib/antlr-4.9.3-complete.jar:$CLASSPATH" org.antlr.v4.Tool
+ANTLR_RUNTIME = /usr/local/include/antlr4-runtime
 INCLUDE = \
 	-I$(RUNTIME) \
 	-I$(SRC) \
-	-I$(ANTLR_RUNTIME) \
-	-I$(ARGPARSE_INC)
-CXXFLAGS = -std=c++17 -g -Wno-attributes -fsanitize=address
-LDFLAGS = -fsanitize=address
-LIBANTLR = $(PWD)/vendor/antlr4/build/runtime/libantlr4-runtime.a
+	-I$(ANTLR_RUNTIME)
+CXXFLAGS = -std=c++17 -g -Wno-attributes -fsanitize=address -lstdc++fs
+LDFLAGS = -fsanitize=address -lstdc++fs
+LIBANTLR = /usr/local/lib/libantlr4-runtime.a
 GENERATED_SOURCES = \
 	$(RUNTIME)/TigerParser.cpp \
 	$(RUNTIME)/TigerLexer.cpp \
@@ -62,7 +59,7 @@ OBJECTS = \
 
 all : dirs $(BIN)/tigerc
 $(BIN)/tigerc: $(OBJECTS) $(GENERATED_OBJECTS)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(GENERATED_OBJECTS) $(LIBANTLR)
+	$(CXX) -o $@ $(OBJECTS) $(GENERATED_OBJECTS) $(LIBANTLR) $(LDFLAGS)
 $(OBJECTS): $(BUILD)/%.o: $(SRC)/%.cpp $(GENERATED_HEADERS) $(HEADERS) $(SOURCES)
 	$(CXX) -c $(CXXFLAGS) $(INCLUDE) $< -o $@
 $(GENERATED_FILES): Tiger.g4
