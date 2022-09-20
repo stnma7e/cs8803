@@ -4,7 +4,7 @@
 # @file
 # @version 0.1
 
-BIN = bin
+BIN = cs8803_bin
 RUNTIME = runtime
 BUILD = build
 SRC = src
