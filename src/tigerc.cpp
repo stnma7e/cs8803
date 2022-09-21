@@ -70,16 +70,6 @@ int main(int argc, const char *argv[]) {
     try {
         antlr4::CommonTokenStream tokens(&lexer);
 
-        TigerParser parser(&tokens);
-        TigerParseErrorListener parseErrorListener;
-        parser.removeErrorListeners();
-        parser.addErrorListener(&parseErrorListener);
-
-        antlr4::tree::ParseTree *tree = parser.tiger_program();
-        TigerFileBaseVisitor vis;
-
-        const TokenInfo parseTree = vis.visit(tree).as<TokenInfo>();
-
         if (write_lex) {
             tokens.fill();
             const auto vocab = lexer.getVocabulary();
@@ -101,6 +91,16 @@ int main(int argc, const char *argv[]) {
         }
 
         if (write_parse) {
+            TigerParser parser(&tokens);
+            TigerParseErrorListener parseErrorListener;
+            parser.removeErrorListeners();
+            parser.addErrorListener(&parseErrorListener);
+
+            antlr4::tree::ParseTree *tree = parser.tiger_program();
+            TigerFileBaseVisitor vis;
+
+            const TokenInfo parseTree = vis.visit(tree).as<TokenInfo>();
+
             auto dot_filename = input_filename;
             dot_filename.replace_extension(".tree.gv");
             std::ofstream dotfile(dot_filename);
