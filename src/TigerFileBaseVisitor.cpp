@@ -185,10 +185,6 @@ antlrcpp::Any TigerFileBaseVisitor::visitOptional_init(TigerParser::Optional_ini
 }
 
 antlrcpp::Any TigerFileBaseVisitor::visitFunct(TigerParser::FunctContext *context) {
-    if (!context->END()) {
-        throw TigerParseError();
-    }
-
     return TokenInfo("funct", TokenInfo::Children{
         std::make_shared<TokenInfo>(context->FUNCTION()),
         std::make_shared<TokenInfo>("ID: " + context->ID()->getText()),
@@ -518,4 +514,12 @@ antlrcpp::Any TigerFileBaseVisitor::visitValue_tail(TigerParser::Value_tailConte
         children.push_back(std::make_shared<TokenInfo>("CLOSEBRACK", context->CLOSEBRACK()));
     }
     return TokenInfo("value_tail", std::move(children));
+}
+
+void TigerLexErrorListener::syntaxError(antlr4::Recognizer *recognizer, antlr4::Token* offendingSymbol, size_t line, size_t charPositionInLine, const std::string& msg, std::exception_ptr e) {
+    throw TigerError(true);
+}
+
+void TigerParseErrorListener::syntaxError(antlr4::Recognizer *recognizer, antlr4::Token* offendingSymbol, size_t line, size_t charPositionInLine, const std::string& msg, std::exception_ptr e) {
+    throw TigerError(false);
 }

@@ -61,35 +61,46 @@ int main(int argc, const char *argv[]) {
 
     antlr4::ANTLRInputStream input(stream);
     stream.close();
+
     TigerLexer lexer(&input);
-    antlr4::CommonTokenStream tokens(&lexer);
+    TigerLexErrorListener lexErrorListener;
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(&lexErrorListener);
 
-    if (write_lex) {
-        tokens.fill();
-        const auto vocab = lexer.getVocabulary();
+    try {
+        antlr4::CommonTokenStream tokens(&lexer);
 
-        auto token_filename = input_filename;
-        token_filename.replace_extension(".tokens");
-        std::ofstream tokenFile(token_filename);
-
-        for (auto token : tokens.getTokens()) {
-            tokenFile << "<"
-                      << vocab.getSymbolicName(token->getType())
-                      << ", "
-                      << token->getText()
-                      << ">"
-                      << std::endl;
-        }
-
-        tokenFile.close();
-    }
-
-    if (write_parse) {
         TigerParser parser(&tokens);
+        TigerParseErrorListener parseErrorListener;
+        parser.removeErrorListeners();
+        parser.addErrorListener(&parseErrorListener);
+
         antlr4::tree::ParseTree *tree = parser.tiger_program();
         TigerFileBaseVisitor vis;
-        try {
-            const TokenInfo parseTree = vis.visit(tree).as<TokenInfo>();
+
+        const TokenInfo parseTree = vis.visit(tree).as<TokenInfo>();
+
+        if (write_lex) {
+            tokens.fill();
+            const auto vocab = lexer.getVocabulary();
+
+            auto token_filename = input_filename;
+            token_filename.replace_extension(".tokens");
+            std::ofstream tokenFile(token_filename);
+
+            for (auto token : tokens.getTokens()) {
+                tokenFile << "<"
+                        << vocab.getSymbolicName(token->getType())
+                        << ", "
+                        << token->getText()
+                        << ">"
+                        << std::endl;
+            }
+
+            tokenFile.close();
+        }
+
+        if (write_parse) {
             auto dot_filename = input_filename;
             dot_filename.replace_extension(".tree.gv");
             std::ofstream dotfile(dot_filename);
@@ -99,10 +110,14 @@ int main(int argc, const char *argv[]) {
             }
             dotfile << parseTree.graphviz() << std::endl;
             dotfile.close();
-        } catch (TigerParseError e) {
-            e.what();
-            return 3;
         }
+
+    } catch (TigerError e) {
+        std::cerr << e.what() << std::endl;
+        if (e.isLex()) {
+            return 2;
+        }
+        return 3;
     }
 
     return 0;

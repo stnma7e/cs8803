@@ -10,8 +10,6 @@
 #include "TigerVisitor.h"
 
 
-class TigerParseError : public std::exception {};
-
 class TigerFileBaseVisitor : public TigerVisitor {
     virtual antlrcpp::Any visitTiger_program(TigerParser::Tiger_programContext *context);
     virtual antlrcpp::Any visitDecl_segment(TigerParser::Decl_segmentContext *context);
@@ -49,6 +47,28 @@ class TigerFileBaseVisitor : public TigerVisitor {
     virtual antlrcpp::Any visitExpr_list_tail(TigerParser::Expr_list_tailContext *context);
     virtual antlrcpp::Any visitValue(TigerParser::ValueContext *context);
     virtual antlrcpp::Any visitValue_tail(TigerParser::Value_tailContext *context);
+};
+
+class TigerError : public std::exception {
+private:
+    const bool _isLex;
+
+public:
+    TigerError(bool isLex)
+        : _isLex(isLex)
+    {}
+
+    bool isLex() const {
+        return _isLex;
+    }
+};
+
+class TigerLexErrorListener : public antlr4::BaseErrorListener {
+    virtual void syntaxError(antlr4::Recognizer *recognizer, antlr4::Token* offendingSymbol, size_t line, size_t charPositionInLine, const std::string& msg, std::exception_ptr e);
+};
+
+class TigerParseErrorListener : public antlr4::BaseErrorListener {
+    virtual void syntaxError(antlr4::Recognizer *recognizer, antlr4::Token* offendingSymbol, size_t line, size_t charPositionInLine, const std::string& msg, std::exception_ptr e);
 };
 
 #endif
